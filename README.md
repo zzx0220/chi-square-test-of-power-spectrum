@@ -65,7 +65,7 @@ or, because $F = T/2$,
 $$\frac{2}{r_{f_0}}\sum_n\frac{E_{f_0,n}}{\bar E_{f,n}}\sim\chi^2_{2n}\tag{10}$$
 Actually it's the approximation of $(7)$. Practically, $T$ is large enough for this approximation. 
 
-**Note:** Practically, the first frequency and the last frequency given by FFT cannot be summed into $\sum_fE_f$, because they doesn't follow $\chi^2_2$. 
+**Note:** Practically, the first frequency and the last frequency given by FFT cannot be summed into $\sum_fE_f$, because they don't follow $\chi^2_2$. 
 
 #### false alarm rate and statistical power of the ratio test
 
@@ -89,7 +89,7 @@ for n = 1:100
 end
 ```
 
-Here I tested with a signal added by a white noise of $X_t\sim N(0,1)$ and a sinusoidal series with multiple possible amplitudes. The length was 60, the length of periodicity was 20 and the phases were randomized uniformly. 1000 iterations were taken to estimate the power of this test on different SNRs. See in *power_of_chi2test.m*.
+Here I tested with a signal added by a white noise of $X_t\sim N(0,1)$ and a sinusoidal series with multiple possible amplitudes. The length was 60, the length of periodicity was 10 and the phases were randomized uniformly. 1000 iterations were taken to estimate the power of this test on different SNRs. See in *power_of_chi2test.m*.
 
 The results showed good performance of this test with standard false alarm noise at $\alpha=0.05$.
 
@@ -156,3 +156,23 @@ Obviously, the power of this test increases when the $N$ increases. However, the
 The power of this test could be estimated similarly to that of the test of power ratio. See in *power_of_shapetest.m*.
 
 ![power_shapetest](README.assets/power_shapetest.png)
+
+### peak test of the power spectra
+
+Here I also give a possibility of testing the peak by $\chi^2$ distribution. Consider the distribution of energy across the frequencies and such a condition: we place one unit of energy into one of the frequency and do this multiple times. Of this consideration, the power spectrum reflects the probabilities of the energy unit placed. Then, an intuitive idea is, a peak would be with the shape of normal distribution across the near-by frequencies and one could test the variation size to decide a peak. 
+
+Consider a frequency band of interest $[f_1,f_2]$. Let $X$ be a random variable from this band and with a distribution $D_X$. Then, $E_f/\sum_fE_f$ would be the frequencies of $X=f$ . 
+
+The variation could be estimated as:
+
+$$\hat V=\sum_f\frac{E_f}{\sum_fE_f}(f-\bar X)^2=\frac{1}{\sum_fE_f}\sum_fE_f(f-\bar X)^2$$
+
+Under null hypothesis of a uniform distribution, we have 
+
+$$V_0=\frac{n^2-1}{12}$$
+
+where $n$ is the number of the frequencies given by FFT in $[f_1,f_2]$. Because we have
+
+$$\frac{E_f}{\theta_f}\sim\chi^2_2$$
+
+We could simulate the distribution of the estimator $\hat V$ under null hypothesis and give a test. 
