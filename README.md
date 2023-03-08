@@ -33,6 +33,8 @@ $$E_f\sim\chi^2(2,\theta_f)\tag5$$
 more simply, with $k=2$, the PDF
 $$f(y;\theta)=\frac12e^{-\frac{y}{2\theta}}\tag6$$
 
+**A more accurate method would be given further.**
+
 #### test of the absolute power/energy
 
 Now we give the uniformly most powerful test (UMPT) of $\theta_f$.
@@ -176,3 +178,64 @@ where $n$ is the number of the frequencies given by FFT in $[f_1,f_2]$. Because 
 $$\frac{E_f}{\theta_f}\sim\chi^2_2$$
 
 We could simulate the distribution of the estimator $\hat V$ under null hypothesis and give a test. 
+
+
+
+## Sample based $\chi^2$ test
+
+The methods given above could be applied to a single time series, but practically, there is some reason to collect multiple samples at each time. 
+
+A key problem in the past to test periodicity is that, when the time series consists of multiple trends, linearly or periodic, the test power would reduce. For example, when there is a linear trend and a periodic trend, obviously the proportion of the periodic variation to the total variation is lower than that of series with single periodic trend. 
+
+Here I propose a new method to improve that power, which is based on the multiple samples at each timepoint. Suppose we have $n_t$ samples at each timepoint $t$ of $1,2,\dots,T$.  
+With null hypothesis of $X_{tk}\sim N(0,\sigma^2),i.i.d,$ where $K_t$ is the sample number at each timepoint, firstly we find
+$$\bar X_t\sim N(0,\sigma^2/K_t)\tag1$$
+which depends on the sample number $K_t$. When $K_t$ is different between the $t$s, the averaged data at each timepoint are not exchangeable. Therefore, the classical method of permutation test by randomly permuting the averaged data across timepoints is inaccurate. 
+
+In the past, the noise variation was estimated by $\text{Var}(\bar  X_t)$, but actually it included the variation of the possible signals, and other signals we don't exactly know such as a linear trend. Here instead, we estimate by the following method:
+
+For each timepoint, we get 
+$$\hat\sigma_t^2=\text{Var}(X_t)=E((X_t-\bar X_t)^2)$$
+which gives
+$$(K_t-1)\frac{\hat\sigma_t^2}{\sigma^2}\sim\chi^2_{K_t-1}$$
+then we sum them up across the timepoints
+$$\frac1{\sigma^2}\sum_t^T(K_t-1)\hat\sigma_t^2\sim\chi^2_{\sum_t^T(K_t-1)}=\chi^2_{\sum_t^TK_t-T}\tag2$$
+Now we give a more accurate definition of the distribution of the power with the time series of ${\bar X_t}$.
+The power of frequency $f$ is calculated as
+$$P(f)=\frac2{Tf_s}\lvert\sum_t^T\bar X_te^{-i2\pi ft/f_s}\rvert^2=\frac2{Tf_s}\lvert\sum_t^T\bar X_t[\cos(-2\pi ft/f_s)+i\sin(-2\pi ft/f_s)]\rvert^2$$
+Therefore,
+$$P(f)=\frac2{Tf_s}[(\sum_t^T\bar X_t\cos(-2\pi ft/f_s))^2+(\sum_t^T\bar X_t\sin(-2\pi ft/f_s))^2]\tag3$$
+Let
+$$A_f = \sum_t^T\bar X_t\cos(-2\pi ft/f_s)$$
+$$ B_f = \sum_t^T\bar X_t\sin(-2\pi ft/f_s)$$
+Because $(1)$, $A_t$ and $B_t$ follow normal distribution. More exactly, 
+$$\sigma^2_{A_f}=\sum_t^T\frac{\sigma^2}{K_t}\cos^2(-2\pi ft/f_s)$$
+$$\sigma^2_{B_f}=\sum_t^T\frac{\sigma^2}{K_t}\sin^2(-2\pi ft/f_s)$$
+Therefore, we could just guess the distribution of $P(f)$ is $\chi^2$-like. If we assume
+$$\sum_t^T\cos^2(-2\pi ft/f_s)/K_t\approx \sum_t^T\sin^2(-2\pi ft/f_s)/K_t=C^2$$
+we could further find $A_f/(C\sigma)$ and $B_f/(C\sigma)$ follow standard normal distribution. Then we let
+$$P_f=\frac{2C^2\sigma^2}{Tf_s}[(\frac{A_f}{C\sigma})^2+(\frac{B_f}{C\sigma})^2]$$
+Then we have 
+$$\frac{P_fTf_s}{2C^2\sigma^2}\sim\chi^2_2\tag4$$
+Consider $(2)$, we have
+$$\Lambda=\frac{P_fTf_s\sum_t^T(K_t-1)}{4C^2\sum_t^T(K_t-1)\hat\sigma_t^2}\sim F(2,\sum_t^TK_t-T)$$
+
+If $\Lambda$ is higher than the $\alpha$ level of this distribution, then it is reasonable to give $P_f$ is higher than random level.
+Further, using the approximation when the second freedom is large, we have
+$$2\Lambda\sim \chi^2_2$$
+Then sum it across the subjects we have
+$$\sum_n^N2\Lambda_n=\chi^2_{2N}$$
+It's possible to let $C^2$ as the average of the $\cos^2$ and $\sin^2$ items. Then,
+$$C^2 = \frac12(\sum_t^T\cos^2(-2\pi ft/f_s)/K_t+\sum_t^T\sin^2(-2\pi ft/f_s)/K_t)=\frac12\sum_t^T\frac1{K_t}$$
+
+Then 
+$$\Lambda=\frac{P_fTf_s\sum_t^T(K_t-1)}{2\sum_t^T1/K_t\sum_t^T(K_t-1)\hat\sigma^2_t}\sim F(2,\sum_t^TK_t-T)$$
+
+if $K_t$s are equal to $K$, then 
+$$\Lambda=\frac{P_ff_sT^2K}{2T\sum_t^T\hat \sigma_t^2}$$
+
+The power of this test is eatimated in *power_of_chi2test_samplebased.m*. We could find the power is comparable to the test given above with a time series of single periodicity (first figure). Also, when the time series consists of multiple trends, the power keeps (second figure).
+
+![power_chi2test_samplebased_singlesignal](README.assets/power_chi2test_samplebased_singlesignal.png)
+
+![power_chi2test_samplebased_doublesignal](README.assets/power_chi2test_samplebased_doublesignal.png)
