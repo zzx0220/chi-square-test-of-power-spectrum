@@ -13,16 +13,16 @@ for rp = 1:1000
 
             noise = randn(60,n,kkk).*2;
             
-            T_period = 10;
+            T_period = 12;
             x = [1:60]';
             tau = rand(1,n)*2*pi;
-            y_sin = sin((x)/20*2*pi+tau).*amplevel(amp) + sin((x)/T_period*2*pi+tau).*amplevel(amp)+noise;
+            %y_sin = sin((x)/5*2*pi+tau) + sin((x)/T_period*2*pi+tau).*amplevel(amp)+noise;
             
-            %y_sin = sin((x)/T_period*2*pi+tau).*amplevel(amp)+noise;
+            y_sin = sin((x)/T_period*2*pi+tau).*amplevel(amp)+noise;
             %% chi2 test
             % calculate theta0 of each subject
            
-            [pxx,f] = pwelch(mean(y_sin,3),ones(1,60),[],[],120);
+            [pxx,f] = pwelch(mean(y_sin,3),ones(1,60),[],120,120);
         
             pxx = pxx(2:(end-1),:);
             f = f(2:(end-1));
@@ -31,7 +31,7 @@ for rp = 1:1000
 
             lambda = pxx*T*fs.*sum(K-1,1)./(2*sum(1./K,1).*sum((K-1).*sigma2_est,1));
             
-            lambda_total = sum(2*lambda(26,:));
+            lambda_total = sum(2*lambda(10,:));
             p = 1-chi2cdf(lambda_total,2*n);
             if p<0.05
                 H_chi2(rp,amp,n) = 1;
@@ -56,6 +56,6 @@ g.set_names('x','amplitude','y','power','lightness','sample number');
 g.set_color_options("legend","merge");
 g.geom_hline('yintercept',0.8,'style','k--');
 g.draw();
-g.export('file_name','power_chi2test_samplebased_doublesignal','file_type','png','width',15,'height',10);
-%g.export('file_name','power_chi2test_samplebased_singlesignal','file_type','png','width',15,'height',10);
+%g.export('file_name','power_chi2test_samplebased_doublesignal','file_type','png','width',15,'height',10);
+g.export('file_name','power_chi2test_samplebased_singlesignal','file_type','png','width',15,'height',10);
 

@@ -239,3 +239,21 @@ The power of this test is eatimated in *power_of_chi2test_samplebased.m*. We cou
 ![power_chi2test_samplebased_singlesignal](README.assets/power_chi2test_samplebased_singlesignal.png)
 
 ![power_chi2test_samplebased_doublesignal](README.assets/power_chi2test_samplebased_doublesignal.png)
+
+As a comparison, the following picture showed the performance of the power ratio test described above. The statistical power severely reduced when multiple temporal components existed. Actually, if a second temporal component has a wide-frequency band, it might result in false alarm as well. 
+
+![power_chi2test_doublesignal](README.assets/power_chi2test_doublesignal.png)
+
+## More about the permutation test
+
+An easy explanation to the condition described above is, the power ratio test calculated the ratio between the power of the frequency of interest and the power of all other variations, including noise and other temporal components. This is also a problem existed in the widely used permutation test - it randomly permutes the time series, just as randomly generating white noises with full variation, but not only the variation of the noise. 
+
+If you follow the very first article introducing permutation test on ANOVA of Pitman(1938), you will find such a description: 
+
+> Hence $W=S_T/(S_T+S_E)$, which is a monotonic increasing function of $S_T/S_E$.
+
+Under this condition, testing on $W$ is equivelant to testing on $S_T/S_E$. However, from this view, the permutation test is testing on
+$$W=\frac{S_{f_0}}{S_{f_0}+\sum_{f\ne f_0}S_f+S_E}$$
+
+which is not equivelant to testing $S_{f_0}/S_E$ because the sum of variations of other frequencies is changing. 
+
